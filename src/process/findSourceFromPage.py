@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from util import loggerConfig
 
 logger = loggerConfig.setConfig()
-pathFacebookPage = '/home/riskaamalia/Documents/fromGit/my-git/facebook-page-scraping/result-folder/facebook-page.txt'
+pathFacebookPage = '/home/riskaamalia/Documents/fromGit/my-git/facebook-page-scraping/result-folder/berita-page.txt'
 pathPotential = '/home/riskaamalia/Documents/fromGit/my-git/facebook-page-scraping/result-folder/potential-source.tsv'
 
 def processor (driver) :
@@ -41,7 +41,7 @@ def getSource (driver) :
                     url = getArticleSource(realUrl)
                     logger.info("Potential Source : "+url)
                     if isUrlExistInFile(pathPotential,realUrl) == 0 :
-                        writeTofile(pathPotential,url+"\t"+realUrl+"\t"+line)
+                        writeTofile(pathPotential,url+"\t"+line+"\t"+realUrl)
 
         except (Exception) :
             logger.info('Invalid URL ')

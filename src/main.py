@@ -9,7 +9,7 @@ driver = driverConfig.defineDriver()
 loginFacebook.login(driver)
 
 # find facebook page process
-findPage.processor(driver)
+# findPage.processor(driver)
 
 # try to get another source
-# findSourceFromPage.processor(driver)
+findSourceFromPage.processor(driver)

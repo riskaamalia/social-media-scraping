@@ -27,3 +27,6 @@ def login (driver) :
         elem.click()
     except (Exception) :
         logger.info('Exception, I do not know')
+
+    # click pop up
+    driver.find_element_by_xpath("//*[text()='Lain Kali']").click()

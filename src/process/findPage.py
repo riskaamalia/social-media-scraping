@@ -1,11 +1,13 @@
 import re
 import time
 
+from selenium.common.exceptions import NoSuchElementException
+
 from util import loggerConfig
 
 
 logger = loggerConfig.setConfig()
-path = '/home/riskaamalia/Documents/fromGit/my-git/facebook-page-scraping/result-folder/facebook-page.txt'
+path = '/home/riskaamalia/Documents/fromGit/my-git/facebook-page-scraping/result-folder/berita-page.txt'
 
 def processor (driver) :
     logger.info("Process finding source from a page")
@@ -48,31 +50,48 @@ def fromSearchPage (driver,keyword) :
         keyword = "berita"
 
     driver.get("https://www.facebook.com/search/str/"+keyword+"/keywords_pages")
-    time.sleep(5)
 
-    # find all related link
-    elems = driver.find_elements_by_xpath("//div[@id='BrowseResultsContainer']//a[@href]")
-    for elem in elems:
-        regex = r'(https://www.facebook.com/)([^/]*)([/?ref=br_rs]*)$'
-        url = elem.get_attribute("href")
-        if re.match(regex,url) and url not in listUrl :
-                listUrl.append(url)
+    firstScroll = 0
+    lastScroll = driver.get_window_size()['height']
+    scrollLoop = 1
+    loop = 1
+    while True :
+        # find all related link
+        elems = driver.find_elements_by_xpath("//div[@id='browse_result_area']//a[@href]")
+        for elem in elems:
+            regex = r'(https://www.facebook.com/)([^/]*)([/?ref=br_rs]*)$'
+            url = elem.get_attribute("href")
+            if re.match(regex,url) and url not in listUrl :
+                    listUrl.append(url)
 
-    # scroll until end
 
+        if listUrl.__len__() != 0 :
+            logger.info("Get url page from recommendation")
+            for list in listUrl :
+                if isUrlExistInFile(path,list) == 0 :
+                    if loop == 0 :
+                        writeTofile(path,list)
+                        # print("hehe")
+                    else :
+                        writeTofile(path,"\n"+list)
+                        # print("hehe")
+                    logger.info("Write "+list+" to file from recommendation page, total write : "+str(loop))
+                    loop= loop+1
 
-    if listUrl.__len__() != 0 :
-        logger.info("Get url page from recommendation")
-        loop = 0
-        for list in listUrl :
-            if isUrlExistInFile(path,list) == 0 :
-                if loop == 0 :
-                    writeTofile(path,list)
-                    print("hehe")
-                else :
-                    writeTofile(path,"\n"+list)
-            loop= loop+1
-            logger.info("Write "+list+" to file from recommendation page, total write : "+str(loop))
+        # scroll until end , the end id is phm _64f
+        print("scroll "+str(lastScroll*scrollLoop)+" == "+str(scrollLoop))
+        driver.execute_script("window.scrollTo("+str(firstScroll)+","+str(lastScroll*scrollLoop)+");")
+        firstScroll = lastScroll * (scrollLoop - 1)
+        scrollLoop = scrollLoop + 1
+        time.sleep(2)
+
+        try :
+            driver.find_element_by_xpath("//div[@class='_24j']")
+            print("udahan oyyy")
+            break
+        except NoSuchElementException:
+            print("ga ada")
+            continue
 
 
 def fromRelatedPage (driver) :
