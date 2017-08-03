@@ -28,20 +28,34 @@ def getSource (driver) :
             driver.get(line+"posts/")
             time.sleep(5)
 
-            # find all related link to the page
-            elems = driver.find_elements_by_xpath("//div[@class='_2pie _14i5 _1qkq _1qkx']//a[@href]")
+            scrollLoop = 1
+            firstScroll = 0
+            lastScroll = driver.get_window_size()['height']
+            while True :
+                # find all related link to the page
+                elems = driver.find_elements_by_xpath("//div[@class='_2pie _14i5 _1qkq _1qkx']//a[@href]")
 
-            for elem in elems:
-                url = elem.get_attribute("href")
-                regex = r'(https://l.facebook.com/)(.*)$'
-                if re.match(regex,url) :
-                    logger.info("From facebook : "+url)
-                    realUrl = getRealUrl(url)
-                    logger.info("Article Source : "+realUrl)
-                    url = getArticleSource(realUrl)
-                    logger.info("Potential Source : "+url)
-                    if isUrlExistInFile(pathPotential,realUrl) == 0 :
-                        writeTofile(pathPotential,url+"\t"+line+"\t"+realUrl)
+                for elem in elems:
+                    url = elem.get_attribute("href")
+                    regex = r'(https://l.facebook.com/)(.*)$'
+                    if re.match(regex,url) :
+                        logger.info("From facebook : "+url)
+                        realUrl = getRealUrl(url)
+                        logger.info("Article Source : "+realUrl)
+                        url = getArticleSource(realUrl)
+                        logger.info("Potential Source : "+url)
+                        if isUrlExistInFile(pathPotential,realUrl) == 0 :
+                            writeTofile(pathPotential,url+"\t"+realUrl+"\t"+line)
+                    # else :
+                    #     print(url)
+
+                print("scroll "+str(lastScroll*scrollLoop)+" == "+str(scrollLoop))
+                driver.execute_script("window.scrollTo("+str(firstScroll)+","+str(lastScroll*scrollLoop)+");")
+                firstScroll = lastScroll * (scrollLoop - 1)
+                scrollLoop = scrollLoop + 1
+
+                if scrollLoop == 5 :
+                    break
 
         except (Exception) :
             logger.info('Invalid URL ')
