@@ -1,6 +1,6 @@
 from selenium.webdriver.common.keys import Keys
-from util import loggerConfig
-logger = loggerConfig.setConfig()
+from util import LoggerConfig
+logger = LoggerConfig.setConfig()
 
 
 def login (driver) :
