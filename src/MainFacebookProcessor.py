@@ -57,12 +57,12 @@ def execute_process (thread_name,thread_id) :
 
 # Create new threads , 1 threads for one process
 thread1 = MainFacebookProcessor(1, "1-Thread-Pages")
-thread2 = MainFacebookProcessor(2, "2-Thread-Related-Pages")
-thread3 = MainFacebookProcessor(3, "3-Thread-Search-Pages")
-thread4 = MainFacebookProcessor(4, "4-Thread-Search-Posts")
+# thread2 = MainFacebookProcessor(2, "2-Thread-Related-Pages")
+# thread3 = MainFacebookProcessor(3, "3-Thread-Search-Pages")
+# thread4 = MainFacebookProcessor(4, "4-Thread-Search-Posts")
 
 # Start new Threads
 thread1.start()
-thread2.start()
-thread3.start()
-thread4.start()
+# thread2.start()
+# thread3.start()
+# thread4.start()

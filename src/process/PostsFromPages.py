@@ -73,6 +73,3 @@ def execute_process (driver,thread_name) :
         time.sleep(2)
         count_page_source += 1
         logger.info(thread_name+" "+str(count_page_source)+" page source is readed")
-
-        if count_page_source == 3 :
-            break
