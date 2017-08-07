@@ -1,0 +1,17 @@
+Facebook Scraping Dependencies :
+- I use PyCharm IDE
+- Python with Selenium
+- Sqlite
+- Python 3.6.1
+- Google chrome driver
+
+This project store data into file and into sqlite, to run this project, run MainFacebookProcessor.py
+This project contain 4 process in 4 thread
+Thread 1 role --> get pages from recommendation and get some posts in pages that exists in db
+Thread 2 role --> get pages in db and find related pages
+Thread 3 role --> search using some query , and then go to get all related pages to query
+Thread 4 role --> search using some query , and then go to get all posts to query
+
+Contains 2 table ( in facebook.db in sqlite )
+source_from_fb --> contain every potential url source
+page_from_fb --> contain fb page
