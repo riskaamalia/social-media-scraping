@@ -1,7 +1,6 @@
-from selenium.webdriver.common.keys import Keys
-from util import LoggerConfig
-logger = LoggerConfig.setConfig()
+import logging
 
+from selenium.webdriver.common.keys import Keys
 
 def login (driver, username, password) :
 
@@ -23,10 +22,10 @@ def login (driver, username, password) :
         elem = driver.find_element_by_css_selector("input[value=\"Publicar\"]")
         elem.click()
     except (Exception) :
-        logger.info('Exception, I do not know')
+        logging.info('Exception, I do not know')
 
     # click pop up
     try :
         driver.find_element_by_xpath("//*[text()='Lain Kali']").click()
     except(Exception) :
-        logger.info("Pop up does not come")
+        logging.info("Pop up does not come")

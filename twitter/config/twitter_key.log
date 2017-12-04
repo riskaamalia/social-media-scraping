@@ -1,0 +1,7 @@
+base_url = https://api.twitter.com/1.1/search/tweets.json
+consumer_key = 
+consumer_secret = 
+token_key = 
+token_secret = 
+woeid = 23424846
+base_url_trending = https://api.twitter.com/1.1/trends/place.json?id=

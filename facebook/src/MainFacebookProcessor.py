@@ -1,16 +1,26 @@
 import threading
-
-from process import LoginFacebook
-from process.PagesFromSearching import PagesFromSearching
-from process.PagesFromRelatedPage import PagesFromRelatedPage
-from process.PostsFromPages import PostsFromPages
-from process.PostsFromSearching import PostsFromSearching
-from util import DriverConfig
-from util import LoggerConfig
+import logging
+from process import GraphApiPages
+from process import GraphApiSearchPages
+from process import GraphApiVideoPage
+from time import sleep
 from util.ConfigProcessor import ConfigProcessor
-from database.SqliteDao import SqliteDao
+from database.sql import sql
 
-logger = LoggerConfig.setConfig()
+import os
+import sys
+
+dir_path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
+sys.path.insert(0, dir_path)
+from sea_utils import common_utils
+from sea_utils import set_proxy
+
+common_utils.setup_logging('facebook.log')
+# proxy = set_proxy.set()
+try :
+    country = sys.argv[1]
+except :
+    country = 'id'
 
 class MainFacebookProcessor (threading.Thread):
 
@@ -20,58 +30,40 @@ class MainFacebookProcessor (threading.Thread):
       self.name = name
 
    def run(self):
-      logger.info ("Starting " + self.name)
+      logging.info ("Starting " + self.name)
 
       # execute process here
       execute_process(self.name,self.thread_ID)
 
-      logger.info ("Exiting " + self.name)
-
 def execute_process (thread_name,thread_id) :
-
-   logger.info("Processor :"+thread_name)
-   # set driver configuration
-   driver = DriverConfig.defineDriver()
+   logging.info("Processor :"+thread_name)
    config_processor = ConfigProcessor()
+   # token and limit
+   token = config_processor.facebook_token("token",country)
+   limit = config_processor.facebook_token("limit",country)
+   # dao for db
+   dao = sql()
 
-   # dao for db sqlite
-   dao = SqliteDao()
+   keyword = config_processor.config_facebook_keyword()
+   keyword_video = config_processor.config_video_keyword()
 
-   # keyword , for example just get first keyword
-   keyword = config_processor.config_facebook_keyword()[0]
+   while True :
+       if thread_id == 2 :
+            GraphApiPages.processor(dao,token,limit)
+       elif thread_id == 3 :
+            GraphApiSearchPages.processor(dao,keyword,token,limit)
+       elif thread_id == 4 :
+            GraphApiVideoPage.processor(dao,keyword_video,token,limit)
 
-   # log in facebook
-   username = config_processor.config_facebook_username()
-   password = config_processor.config_facebook_password()
-   LoginFacebook.login(driver, username, password)
-
-   if thread_id == 1 :
-      # role --> get pages from recommendation and get some posts in pages that exists in db
-      logger.info("Processor Pages uses : "+thread_name)
-      PostsFromPages.processor(driver,thread_name,dao)
-
-   elif thread_id == 2 :
-      # role --> get pages in db and find related pages
-      logger.info("Processor Related Pages uses : "+thread_name)
-      PagesFromRelatedPage.processor(driver,thread_name,dao)
-   elif thread_id == 3 :
-      # role --> search using some query , and then go to get all related pages to query
-      logger.info("Processor Search Pages uses : "+thread_name)
-      PagesFromSearching.processor(driver,thread_name,dao,keyword)
-   elif thread_id == 4 :
-      # role --> search using some query , and then go to get all posts to query
-      logger.info("Processor Search Posts uses : "+thread_name)
-      PostsFromSearching.processor(driver,thread_name,dao,keyword)
+       logging.info('starting again ....')
 
 
-# Create new threads , 1 threads for one process
-thread1 = MainFacebookProcessor(1, "1-Thread-Pages")
-thread2 = MainFacebookProcessor(2, "2-Thread-Related-Pages")
-thread3 = MainFacebookProcessor(3, "3-Thread-Search-Pages")
-thread4 = MainFacebookProcessor(4, "4-Thread-Search-Posts")
-
-# Start new Threads
-thread1.start()
+thread2 = MainFacebookProcessor(2, "2-Thread-Graph-Posts")
 thread2.start()
+
+thread3 = MainFacebookProcessor(3, "3-Thread-Graph-Pages")
 thread3.start()
-thread4.start()
+
+if country == 'id' :
+    thread4 = MainFacebookProcessor(4, "4-Thread-Graph-Video-Pages")
+    thread4.start()
